@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ItemType {
+  FILE
+  FOLDER
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String?
+  displayName     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  refreshTokens   RefreshToken[]
+  items           Item[]
+  shares          ShareLink[]
+
+  @@index([createdAt])
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash   String
+  revokedAt   DateTime?
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+
+model Item {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type          ItemType
+  name          String
+  parentId      String?
+  parent        Item?    @relation("ItemToChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children      Item[]   @relation("ItemToChildren")
+
+
+  mimeType      String?
+  sizeBytes     BigInt?
+  storageKey    String?   
+
+
+  trashedAt     DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  shares        ShareLink[]
+
+  @@index([userId, parentId])
+  @@index([userId, name])
+  @@index([userId, trashedAt])
+}
+
+model ShareLink {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  itemId      String
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  token       String   @unique
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+
+  @@index([userId])
+  @@index([itemId])
+}
