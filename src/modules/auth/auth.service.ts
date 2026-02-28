@@ -112,6 +112,26 @@ export class AuthService {
     return { ok: true };
   }
 
+  verifyAccessToken(token: string): { sub: string; email: string } {
+    try {
+      return this.jwt.verify(token, {
+        secret: this.config.get<string>('JWT_ACCESS_SECRET') ?? 'change-me-access',
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid access token');
+    }
+  }
+
+  signLinkToken(userId: string): string {
+    return this.jwt.sign(
+      { action: 'link', userId },
+      {
+        secret: this.config.get<string>('JWT_ACCESS_SECRET') ?? 'change-me-access',
+        expiresIn: '5m',
+      },
+    );
+  }
+
   private async verifyRefresh(token: string) {
     try {
       return await this.jwt.verifyAsync(token, {
