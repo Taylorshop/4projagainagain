@@ -32,7 +32,6 @@ docker compose up --build
 
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
-- Azurite (blob emulator): http://localhost:10000
 
 Prisma migrations run automatically on backend startup.
 
@@ -41,8 +40,9 @@ Prisma migrations run automatically on backend startup.
 
 ### Prerequisites
 
-- Node.js 20+
-- PostgreSQL 16 running locally (or use `docker compose up db azurite` for just the services)
+- Docker
+- Google OAuth setup
+- Azure Blob storage
 
 
 
@@ -57,7 +57,7 @@ Prisma migrations run automatically on backend startup.
 | `JWT_ACCESS_EXPIRES_IN` | Access token TTL | `15m` |
 | `JWT_REFRESH_EXPIRES_IN` | Refresh token TTL | `7d` |
 | `STORAGE_ROOT` | Temp directory for multer uploads | `./storage` |
-| `AZURE_STORAGE_CONNECTION_STRING` | Azure Blob connection string (leave empty to use Azurite) | `` |
+| `AZURE_STORAGE_CONNECTION_STRING` | Azure Blob connection string | `` |
 | `AZURE_STORAGE_CONTAINER` | Blob container name | `supfile` |
 | `CORS_ORIGIN` | Allowed frontend origin | `http://localhost:3000` |
 | `FRONTEND_URL` | Used for OAuth redirects | `http://localhost:3000` |
@@ -67,7 +67,7 @@ Prisma migrations run automatically on backend startup.
 
 ---
 
-## Google OAuth setup (optional)
+## Google OAuth setup (optional for tests)
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
 2. Create an **OAuth 2.0 Client ID** (Web application)
@@ -75,22 +75,3 @@ Prisma migrations run automatically on backend startup.
 4. Copy the client ID and secret into `.env`
 
 ---
-
-## Useful commands
-
-```bash
-# Backend
-npm run start:dev       # Start with hot reload
-npm run build           # Compile TypeScript
-npm run lint            # ESLint (0 warnings policy)
-
-# Prisma
-npx prisma migrate dev  # Create and apply a new migration
-npx prisma migrate deploy # Apply pending migrations (used in production/Docker)
-npx prisma studio       # Open Prisma Studio (DB browser)
-npx prisma generate     # Regenerate the Prisma client
-
-# Frontend
-npm run dev             # Start Vite dev server
-npm run build           # Production build
-```
